@@ -24,7 +24,7 @@ This project requires Python 3.8+ and the following Python libraries:
 4. seaborn
 5. scikit-learn
 6. flask
-7. pickle
+7. joblib
 
 It is recommended to install these packages using pip or via the Anaconda distribution of Python.
 
