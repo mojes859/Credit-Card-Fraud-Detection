@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Credit Card Fraud Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05060a;
+            --card: #0b1220;
+            --accent: #6ef0ff;
+            --accent-2: #9b7cff;
+            --muted: #98a0b3;
+            --glass: rgba(255, 255, 255, 0.04);
+            --glass-2: rgba(255, 255, 255, 0.02);
+            --success: #2ef27a;
+            --warn: #ffb86b;
+            --danger: #ff5768;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            background: radial-gradient(1200px 600px at 10% 10%, rgba(155, 124, 255, 0.06), transparent), radial-gradient(900px 400px at 90% 90%, rgba(110, 240, 255, 0.03), transparent), var(--bg);
+            color: #e6eef8
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 32px auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: linear-gradient(180deg, var(--glass), transparent);
+            backdrop-filter: blur(6px);
+            border-radius: 16px;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: 0 6px 40px rgba(0, 0, 0, 0.6)
+        }
+
+        .brand {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            display: grid;
+            place-items: center;
+            color: #041421;
+            font-weight: 800;
+            box-shadow: 0 6px 20px rgba(107, 49, 255, 0.15), inset 0 -6px 12px rgba(255, 255, 255, 0.04)
+        }
+
+        .brand h1 {
+            font-size: 16px;
+            margin: 0
+        }
+
+        nav {
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .nav-item {
+            padding: 10px;
+            border-radius: 10px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(110, 240, 255, 0.05), rgba(155, 124, 255, 0.03));
+            color: var(--accent)
+        }
+
+        /* Main area */
+        .main {
+            display: flex;
+            flex-direction: column;
+            gap: 18px
+        }
+
+        .card {
+            background: linear-gradient(180deg, var(--card), rgba(255, 255, 255, 0.01));
+            padding: 18px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: 0 8px 40px rgba(2, 6, 23, 0.6)
+        }
+
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px
+        }
+
+        .hero-left h2 {
+            margin: 0;
+            font-size: 20px
+        }
+
+        .hero-right {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        /* 3D preview */
+        .device {
+            width: 140px;
+            height: 86px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+            display: grid;
+            place-items: center;
+            transform: perspective(800px) rotateX(8deg) rotateY(-10deg);
+            box-shadow: 0 18px 60px rgba(11, 18, 32, 0.6)
+        }
+
+        .glow {
+            height: 6px;
+            width: 80%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            filter: blur(12px);
+            opacity: 0.8
+        }
+
+        /* Form grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        label {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        input[type=number] {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 10px;
+            border-radius: 8px;
+            color: inherit;
+            outline: none
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            color: #041421
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--muted)
+        }
+
+        /* Result card */
+        .result {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 12px;
+            border-radius: 12px
+        }
+
+        .prob {
+            font-size: 36px;
+            font-weight: 800
+        }
+
+        .prob-sub {
+            font-size: 18px;
+            color: var(--muted);
+            font-weight: 700
+        }
+
+        .status-green {
+            background: linear-gradient(90deg, rgba(46, 242, 122, 0.12), rgba(46, 242, 122, 0.04));
+            border-left: 4px solid var(--success);
+            color: var(--success)
+        }
+
+        .status-amber {
+            background: linear-gradient(90deg, rgba(255, 184, 107, 0.10), rgba(255, 184, 107, 0.03));
+            border-left: 4px solid var(--warn);
+            color: var(--warn)
+        }
+
+        .status-red {
+            background: linear-gradient(90deg, rgba(255, 87, 104, 0.10), rgba(255, 87, 104, 0.03));
+            border-left: 4px solid var(--danger);
+            color: var(--danger)
+        }
+
+        /* Visual analytics layout */
+        /*.analytics {*/
+        /*    display: grid;*/
+        /*    grid-template-columns: 1fr 1fr;*/
+        /*    gap: 14px*/
+        /*}*/
+
+        /* Model info */
+        .model-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .chip {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent);
+            font-size: 12px;
+            color: var(--muted);
+            border: 1px solid rgba(255, 255, 255, 0.02)
+        }
+
+        /* Responsive */
+        @media (max-width: 1000px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 16px
+            }
+
+            .form-grid {
+                grid-template-columns: repeat(1, 1fr)
+            }
+
+            .analytics {
+                grid-template-columns: 1fr
+            }
+
+            .device {
+                display: none
+            }
+        }
+
+        /* subtle animation */
+        @keyframes floaty {
+            0% {
+                transform: translateY(0) rotateX(8deg) rotateY(-10deg)
+            }
+            50% {
+                transform: translateY(-6px) rotateX(9deg) rotateY(-9deg)
+            }
+            100% {
+                transform: translateY(0) rotateX(8deg) rotateY(-10deg)
+            }
+        }
+
+        .device {
+            animation: floaty 6s ease-in-out infinite
+        }
+
+        /* Feature importance bars */
+        .feature-bar {
+            height: 10px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+            overflow: hidden
+        }
+
+        .feature-bar > i {
+            display: block;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        }
+
+        /*footer{color:var(--muted);font-size:12px;text-align:center;margin-top:8px}*/
+    </style>
+</head>
+<body>
+<div class="container">
+    <aside class="sidebar card" role="navigation" aria-label="Main navigation">
+        <div class="brand">
+            <div class="logo">FD</div>
+            <div>
+                <h1>CREDIT CARD</h1>
+                <div style="font-size:12px;color:var(--muted)">Credit Card Fraud Detection</div>
+            </div>
+        </div>
+
+        <nav>
+            <div class="nav-item active" data-view="home">🏠 Home</div>
+            <div class="nav-item" data-view="predict">🔮 Prediction</div>
+            <div class="nav-item" data-view="model">🧠 Model</div>
+            <!--        <div class="nav-item" data-view="analytics">📊 Visual Analytics</div>-->
+        </nav>
+
+        <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
+            <div class="chip">
+                Inputs: 30 (Time, Amount, PCA(V1-V28))
+            </div>
+            <div class="chip">Simulated Inference</div>
+            <div class="chip">Responsive</div>
+        </div>
+
+        <div style="margin-top:20px">
+            <div class="glow"></div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <!-- Home -->
+        <section id="home" class="card view">
+            <div class="hero">
+                <div class="hero-left">
+                    <h2>Credit Card Fraud Prediction</h2>
+                    <div style="color:var(--muted);margin-top:6px">
+                        <br>
+                        <li> Credit card fraud detection is the process of identifying unauthorized or suspicious
+                            transactions using machine learning.
+                        </li>
+                        <br>
+                        <li>By analyzing features like Time, Amount, and PCA-transformed variables (V1–V28), models can
+                            detect unusual patterns that differ from normal behavior.
+                        </li>
+                        <br>
+                        <li>Legitimate transactions show consistent trends, while fraudulent ones often occur at odd
+                            times with irregular amounts.
+                        </li>
+                        <br>
+                        <li>Detecting these rare fraud cases helps prevent financial losses and protect customers.</li>
+                        <br>
+                        <li>(🟩 Green) represent legitimate/original transactions,while (🟥 Red) represent fraudulent
+                            transactions.
+                        </li>
+                        <br>
+                        <li>Legitimate transactions occur steadily across time with a wide range of amounts, reflecting
+                            normal spending behavior. In contrast, fraudulent transactions often cluster during off-peak
+                            hours, typically involve smaller or moderate amounts.
+                        </li>
+                        <br>
+                        <li>It's show distinct patterns in PCA components that differ sharply from normal ones. These
+                            PCA features capture hidden behavioral differences, where fraud cases tend to have more
+                            extreme or skewed values.
+                        </li>
+                    </div>
+                </div>
+                <div class="hero-right">
+                    <div class="device">
+                        <div style="text-align:center;font-weight:700">AI</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="showView('predict')">Try Prediction</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Prediction -->
+        <section id="predict" class="card view" style="display:none">
+            <h3 style="margin-top:0">Prediction</h3>
+            <div style="display:flex;gap:14px;flex-wrap:wrap">
+                <form id="inputForm" style="flex:1;min-width:320px">
+                    <div class="form-grid" id="inputs">
+                        <!-- Inputs will be injected by JS: Time, V1-V28, Amount -->
+                    </div>
+
+                    <div style="display:flex;gap:10px;margin-top:12px">
+                        <button type="button" class="btn btn-primary" onclick="runPrediction()">Run Prediction</button>
+                        <button type="button" class="btn btn-ghost" onclick="randomizeInputs()">Randomize</button>
+                        <button type="button" class="btn btn-ghost" onclick="resetForm()">Reset</button>
+                    </div>
+                </form>
+
+                <aside style="width:320px;min-width:260px">
+                    <div id="resultCard" class="card result status-green">
+                        <div style="flex:1">
+                            <div class="prob" id="prob"></div>
+                            <div class="prob-sub" id="probText">Awaiting input</div>
+                        </div>
+                        <div style="width:90px;text-align:right">
+<!--                            <div style="font-size:12px;color:var(&#45;&#45;muted)">Confidence</div>-->
+<!--                            <div id="confidenceViz" style="height:56px;display:grid;place-items:center"></div>-->
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:12px">
+                        <div style="font-weight:700">Quick ML Explanation</div>
+                        <div style="color:var(--muted);font-size:13px;margin-top:8px">
+                            In credit card fraud detection, a Random Forest Classifier identifies fraudulent
+                            transactions by learning patterns from features like Time, Amount, and PCA components
+                            (V1–V28). It combines multiple decision trees, with the final prediction made by majority
+                            vote. This method handles imbalanced data, reduces overfitting, and captures complex
+                            relationships, making it highly effective for detecting rare fraud cases with strong
+                            accuracy and reliability.
+                        </div>
+                        <ul style="color:var(--muted);font-size:13px;margin-top:10px;padding-left:18px">
+                            <li>Preprocessing: Missing values imputed, StandardScaler.</li>
+                            <li>Model: Ensemble classifier (simulated here).</li>
+                            <li>Explainability: Feature importance & SHAP recommended.</li>
+                        </ul>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <!-- Model Info -->
+        <section id="model" class="card view" style="display:none">
+            <h3 style="margin-top:0">Model Info</h3>
+            <div class="model-meta">
+                <div style="flex:1">
+                    <div style="display:flex;gap:12px;align-items:center">
+                        <div style="font-weight:800;font-size:18px">Simulated Ensemble</div>
+                        <div class="chip">RandomForest-like</div>
+                        <div class="chip">Trained offline</div>
+                    </div>
+
+                    <div style="margin-top:10px;color:var(--muted)">
+                        <h2>1. Data Preparation</h2>
+                        <p><strong>Features:</strong> Time, Amount, and PCA components (V1–V28) — capture
+                            transaction
+                            timing, value, and anonymized behavioral patterns.</p>
+                        <p><strong>Target:</strong> Class → 0 (Legitimate 🟩) or 1 (Fraud 🟥)</p>
+                        <h3>Dataset Characteristics</h3>
+                        <ul>
+                            <li>Highly imbalanced: fraud cases typically &lt;0.2% of all transactions.</li>
+                            <li>Amount distribution: fraud transactions usually have smaller or moderate amounts;
+                                legitimate
+                                transactions vary widely.
+                            </li>
+                            <li>Time distribution: fraud often occurs during off-peak hours; legitimate transactions
+                                are
+                                more evenly distributed.
+                            </li>
+                        </ul>
+                        <h3>Preprocessing Steps</h3>
+                        <ul>
+                            <li>Scaling/normalization of Amount and Time for better model performance.</li>
+                            <li>Handling missing values or anomalies.</li>
+                            <li>Balancing techniques: oversampling fraud cases (SMOTE) or undersampling majority
+                                class.
+                            </li>
+                        </ul>
+
+                        <h2>2. Bootstrapping & Tree Creation</h2>
+                        <p>Random Forest creates multiple random subsets of the dataset using bootstrapping
+                            (sampling with
+                            replacement). Each subset trains a different decision tree, increasing diversity. At
+                            each split,
+                            only a random subset of features is considered (e.g., 10–15 out of 30 features) to
+                            prevent
+                            overfitting.</p>
+
+                        <h2>3. Tree Training</h2>
+                        <p>Each decision tree learns to separate legitimate and fraudulent transactions by detecting
+                            patterns in the features. Trees may capture different aspects:</p>
+                        <ul>
+                            <li>Amount anomalies</li>
+                            <li>Unusual time-based patterns</li>
+                            <li>Extreme PCA component values representing subtle behavioral differences</li>
+                        </ul>
+                        <p>This allows the Random Forest to capture complex, nonlinear relationships in the
+                            data.</p>
+
+                        <h2>4. Prediction</h2>
+                        <p>For a new transaction, all trees predict independently whether it is legitimate (0 🟩) or
+                            fraud (1
+                            🟥). The Random Forest aggregates predictions using majority voting. Optionally, it can
+                            output
+                            fraud probability (e.g., 0.85 → high chance of fraud) for risk scoring.</p>
+
+                        <h2>5. Feature Importance & Insights</h2>
+                        <p>Random Forest provides feature importance scores to identify which features are most
+                            predictive.
+                            Commonly important features in credit card fraud detection:</p>
+                        <ul>
+                            <li>Amount: unusually high or low transactions</li>
+                            <li>Time: transactions at unusual hours</li>
+                            <li>PCA components: e.g., V14, V17, V12 often capture hidden patterns in spending
+                                behavior
+                            </li>
+                        </ul>
+
+                        <h2>6. Advantages for Credit Card Fraud Detection</h2>
+                        <ul>
+                            <li>Handles imbalanced data effectively, especially with additional sampling
+                                techniques
+                            </li>
+                            <li>Reduces overfitting compared to a single decision tree due to averaging across many
+                                trees
+                            </li>
+                            <li>Robust to noise and outliers, common in financial transaction data</li>
+                            <li>Detects rare fraud cases with high accuracy</li>
+                            <li>Provides probabilistic outputs for dynamic thresholds or manual review</li>
+                            <li>Interpretable insights through feature importance help analysts understand fraud
+                                patterns
+                            </li>
+                        </ul>
+<!--                        <ol style="color:var(&#45;&#45;muted)">-->
+<!--                            <li>Input schema & validation (30 values)</li>-->
+<!--                            <li>Probability -> risk level mapping</li>-->
+<!--                            <li>Visual analytics for drift & performance</li>-->
+<!--                        </ol>-->
+                    </div>
+                </div>
+                <div style="width:220px">
+                    <div class="card">
+                        <div style="font-weight:700">Model Metrics</div>
+                        <div style="margin-top:8px;color:var(--muted)">AUC: 0.98</div>
+                        <div style="margin-top:8px;color:var(--muted)">Precision : 0.99</div>
+                        <div style="margin-top:8px;color:var(--muted)">Recall : 0.96</div>
+                        <div style="margin-top:8px;color:var(--muted)">F1 : 0.97</div>
+                        <div style="margin-top:8px;color:var(--muted)">ROC AUC : 0.98</div>
+                    </div>
+                </div>
+            </div>
+
+<!--            <div style="margin-top:12px">-->
+<!--                <div style="font-weight:700">Feature importance (mock)</div>-->
+<!--                <div style="display:grid;gap:8px;margin-top:8px">-->
+<!--                    &lt;!&ndash; mock bars &ndash;&gt;-->
+<!--                    <div style="display:flex;justify-content:space-between">-->
+<!--                        <div style="font-size:13px">V12</div>-->
+<!--                        <div style="width:60%" class="feature-bar"><i style="width:78%"></i></div>-->
+<!--                    </div>-->
+<!--                    <div style="display:flex;justify-content:space-between">-->
+<!--                        <div style="font-size:13px">Amount</div>-->
+<!--                        <div style="width:60%" class="feature-bar"><i style="width:62%"></i></div>-->
+<!--                    </div>-->
+<!--                    <div style="display:flex;justify-content:space-between">-->
+<!--                        <div style="font-size:13px">V17</div>-->
+<!--                        <div style="width:60%" class="feature-bar"><i style="width:50%"></i></div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+        </section>
+
+        <!-- Visual Analytics -->
+<!--        <section id="analytics" class="card view" style="display:none">-->
+<!--            <h3 style="margin-top:0">Visual Analytics</h3>-->
+<!--            <div class="analytics" id="chartsArea">-->
+<!--                <div class="card">-->
+<!--                    <div style="font-weight:700">Transaction Type Distribution</div>-->
+<!--                    <canvas id="pieChart" style="margin-top:10px"></canvas>-->
+<!--                </div>-->
+<!--                <div class="card">-->
+<!--                    <div style="font-weight:700">Feature Importance Trend</div>-->
+<!--                    <canvas id="lineChart" style="margin-top:10px"></canvas>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </section>-->
+    </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const inputsContainer = document.getElementById('inputs');
+    const fields = ['Time'];
+    for (let i = 1; i <= 28; i++) fields.push('V' + i);
+    fields.push('Amount');
+
+    fields.forEach(name => {
+        const div = document.createElement('div');
+        div.className = 'field';
+        div.innerHTML = `<label for='${name}'>${name}</label><input id='${name}' name='${name}' type='number' step='any' value='0'>`;
+        inputsContainer.appendChild(div);
+    });
+
+    function getFormValues() {
+        const vals = [];
+        fields.forEach(f => {
+            const v = parseFloat(document.getElementById(f).value);
+            vals.push(isNaN(v) ? 0 : v);
+        });
+        return vals;
+    }
+
+    function setFormValues(arr) {
+        fields.forEach((f, i) => {
+            document.getElementById(f).value = arr[i];
+        });
+    }
+
+    function randomizeInputs() {
+        const arr = fields.map(f => (Math.random() * 4 - 2).toFixed(4)); // random-ish
+        setFormValues(arr);
+    }
+
+    function resetForm() {
+        const zeros = fields.map(() => 0);
+        setFormValues(zeros);
+        updateResult('--', 'Awaiting input', null);
+    }
+
+    // Mock prediction: small logistic on weighted sum + noise
+    function sigmoid(x) {
+        return 1 / (1 + Math.exp(-x));
+    }
+
+    async function runPrediction() {
+        const vals = getFormValues();
+        try
+        {
+            const res = await fetch('/predict',
+                {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({values: vals})
+            });
+            const data = await res.json();
+            if (data.error)
+            {
+                updateResult('--', data.error, null);
+            }
+            else
+            {
+                updateResult(data.prob + '%', data.text, data.status, data.prob / 100);
+            }
+        }
+        catch (err)
+        {
+            updateResult('--', 'Prediction failed', null);
+            console.error(err);
+        }
+    }
+
+
+    function updateResult(pct, text, status, rawProb = null)
+    {
+        const card = document.getElementById('resultCard');
+        // const probEl = document.getElementById('prob');
+        const textEl = document.getElementById('probText');
+        const conf = document.getElementById('confidenceViz');
+
+        // probEl.textContent = pct;
+        textEl.textContent = text;
+
+        // Reset and apply status color
+        card.classList.remove('status-green', 'status-amber', 'status-red');
+        if (status === 'green') card.classList.add('status-green');
+        else if (status === 'amber') card.classList.add('status-amber');
+        else if (status === 'red') card.classList.add('status-red');
+
+        // Confidence visualization
+        // if (rawProb === null) {
+        //     conf.innerHTML = '—';
+        //     return;
+        // }
+
+        // Choose color dynamically
+        let color;
+        if (status === 'green') color = '#2ef27a';
+        else if (status === 'amber') color = '#ffb86b';
+        else color = '#ff5768';
+
+        // Circular progress SVG
+    //     conf.innerHTML = `
+    // <svg width="56" height="56" viewBox="0 0 36 36">
+    //   <path stroke-opacity="0.12" stroke="${color}" stroke-width="3" fill="none" d="M18 2a16 16 0 1 1 0 32 16 16 0 1 1 0-32"/>
+    //   <path stroke-width="3" stroke-linecap="round" fill="none" stroke="${color}" d="M18 2a16 16 0 1 1 0 32"
+    //     stroke-dasharray="${(rawProb * 100).toFixed(2)} 100"/>
+    //   <text x="18" y="22" font-size="10" fill="${color}" text-anchor="middle" font-weight="700">${Math.round(rawProb * 100)}%</text>
+    // </svg>
+    }
+
+
+    // Navigation
+    function showView(name) {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === name));
+        document.querySelectorAll('.view').forEach(v => {
+            v.style.display = v.id === name ? 'block' : 'none'
+        });
+    }
+
+    document.querySelectorAll('.nav-item').forEach(n => n.addEventListener('click', () => showView(n.dataset.view)));
+
+    // Initialize
+    resetForm();
+
+    // Analytics (mock streaming)
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    const lineCtx = document.getElementById('lineChart').getContext('2d');
+
+    const pie = new Chart(pieCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Legit', 'Fraud'],
+            datasets: [{data: [950, 50], backgroundColor: ['rgba(110,240,255,0.08)', 'rgba(255,87,104,0.12)']}]
+        },
+        options: {plugins: {legend: {labels: {color: '#cfeeff'}}}}
+    });
+
+    const line = new Chart(lineCtx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 10}, (_, i) => `T-${9 - i}`),
+            datasets: [{
+                label: 'Avg Fraud Score',
+                data: Array.from({length: 10}, () => Math.random() * 0.4 + 0.05),
+                tension: 0.35,
+                pointRadius: 2
+            }]
+        },
+        options: {scales: {y: {min: 0, max: 1}}, plugins: {legend: {display: false}}}
+    });
+
+    function pushAnalyticsSample(prob) {
+        // pie update: increment fraud bucket slightly
+        const fraud = pie.data.datasets[0].data[1];
+        pie.data.datasets[0].data = [Math.max(1, pie.data.datasets[0].data[0] - (prob * 0.05)), Math.min(9999, fraud + (prob * 0.05))];
+        pie.update();
+
+        // line update
+        line.data.datasets[0].data.push(prob);
+        line.data.datasets[0].data.shift();
+        line.update();
+    }
+
+    // Seed some realistic defaults
+    (function seedDefaults() {
+        const arr = [];
+        for (let i = 0; i < fields.length; i++) {
+            if (fields[i] === 'Amount') arr.push((Math.random() * 200).toFixed(2));
+            else if (fields[i] === 'Time') arr.push(Math.floor(Math.random() * 172800));
+            else arr.push((Math.random() * 2 - 1).toFixed(4));
+        }
+        setFormValues(arr);
+    })();
+
+    // Expose helpers to window for quick dev
+    window.runPrediction = runPrediction;
+    window.randomizeInputs = randomizeInputs;
+    window.resetForm = resetForm;
+    window.showView = showView;
+</script>
+</body>
+</html>
