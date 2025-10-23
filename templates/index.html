@@ -622,8 +622,7 @@
     function resetForm() {
         const zeros = fields.map(() => 0);
         setFormValues(zeros);
-        updateResult('Awaiting input', null);
-        runPrediction();
+        updateResult('--','Awaiting input', null);
     }
 
     // Mock prediction: small logistic on weighted sum + noise
@@ -633,12 +632,6 @@
 
     async function runPrediction() {
         const vals = getFormValues();
-
-        const allzeros = vals.every(v => v===0)
-        if (allzero) {
-            updateResult('Awaiting input', null);
-            return;
-        }
         
         try
         {
@@ -777,5 +770,6 @@
 </script>
 </body>
 </html>
+
 
 
