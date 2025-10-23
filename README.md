@@ -18,13 +18,13 @@ The Random Forest algorithm is robust and interpretable, handling complex featur
 ## Installation
 This project requires Python 3.8+ and the following Python libraries:
 
-numpy
-pandas
-matplotlib
-seaborn
-scikit-learn
-flask
-pickle
+1. numpy
+2. pandas
+3. matplotlib
+4. seaborn
+5. scikit-learn
+6. flask
+7. pickle
 
 It is recommended to install these packages using pip or via the Anaconda distribution of Python.
 
@@ -57,9 +57,9 @@ To run the project:
 3. Run the Flask app:
    Flask run app.py
 4. Interact with the app:
-   Home Page
-   Prediction Page
-   Model Page
+   1. Home Page
+   2. Prediction Page
+   3. Model Page
 
 ## Conclusion
 This Credit Card Fraud Detection with Flask project provides a complete solution for fraud classification and web deployment.
