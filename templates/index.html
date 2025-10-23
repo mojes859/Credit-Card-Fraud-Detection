@@ -632,6 +632,13 @@
 
     async function runPrediction() {
         const vals = getFormValues();
+
+        const allzeros = vals.every(v => v===0)
+        if (allzero) {
+            updateResult('Awaiting input', null);
+            return;
+        }
+        
         try
         {
             const res = await fetch('/predict',
@@ -769,3 +776,4 @@
 </script>
 </body>
 </html>
+
